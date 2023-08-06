@@ -1,13 +1,15 @@
 package main
 
+import "strings"
+
 func cross(a string, b string) []string {
-	var hoge []string
+	var slice []string
 	for _, ca := range a {
 		for _, cb := range b {
-			hoge = append(hoge, string([]rune{ca, cb}))
+			slice = append(slice, string([]rune{ca, cb}))
 		}
 	}
-	return hoge
+	return slice
 }
 
 const digits = "123456789"
@@ -51,6 +53,46 @@ func initialize() {
 			}
 		}
 	}
+}
+
+func parseGrid(grid string) (map[string]string, error) {
+	values := make(map[string]string)
+	for _, s := range squares {
+		values[s] = digits
+	}
+
+	for s, d := range gridValues(grid) {
+		if d != "0" && d != "." {
+			if err := assign(values, s, d); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return values, nil
+}
+
+func gridValues(grid string) map[string]string {
+	chars := make(map[string]string)
+	for i, c := range grid {
+		chars[squares[i]] = string(c)
+	}
+	return chars
+}
+
+func assign(values map[string]string, s string, d string) error {
+	otherValues := strings.Replace(values[s], d, "", 1)
+	for _, d2 := range otherValues {
+		err := eliminate(values, s, string(d2))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func eliminate(values map[string]string, s string, d string) error {
+	// TODO: 実装する
+	return nil
 }
 
 func main() {
