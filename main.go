@@ -143,7 +143,6 @@ func solve(grid string) (map[string]string, error) {
 	}
 }
 
-// TODO: 再帰による深さ優先探索を実装する
 func search(values map[string]string) (map[string]string, error) {
 	square := ""
 	for s, _ := range values {
