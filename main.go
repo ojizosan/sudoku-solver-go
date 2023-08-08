@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -25,7 +28,7 @@ var unitlist [][]string
 var units = make(map[string][][]string)
 var peers = make(map[string]map[string]struct{})
 
-func initialize() {
+func init() {
 	for _, c := range cols {
 		unitlist = append(unitlist, cross(rows, string(c)))
 	}
@@ -95,7 +98,6 @@ func assign(values map[string]string, s string, d string) error {
 }
 
 func eliminate(values map[string]string, s string, d string) error {
-	// TODO: 実装する
 	if strings.Index(values[s], d) == -1 {
 		return nil
 	}
@@ -133,6 +135,44 @@ func eliminate(values map[string]string, s string, d string) error {
 	return nil
 }
 
+func solve(grid string) (map[string]string, error) {
+	if values, err := parseGrid(grid); err != nil {
+		return nil, err
+	} else {
+		return search(values)
+	}
+}
+
+// TODO: 再帰による深さ優先探索を実装する
+func search(values map[string]string) (map[string]string, error) {
+	square := ""
+	for s, _ := range values {
+		if len(values[s]) > 1 {
+			if square == "" || len(values[s]) < len(values[square]) {
+				square = s
+			}
+		}
+	}
+	if square == "" {
+		return values, nil
+	}
+
+	for _, d := range values[square] {
+		values2 := make(map[string]string)
+		for s, v := range values {
+			values2[s] = v
+		}
+		if assign(values2, square, string(d)) != nil {
+			continue
+		} else if values2, err := search(values2); err != nil {
+			continue
+		} else {
+			return values2, nil
+		}
+	}
+	return nil, errors.New("search failed")
+}
+
 func display(values map[string]string) {
 	width := 1
 	for _, square := range squares {
@@ -157,14 +197,19 @@ func display(values map[string]string) {
 }
 
 func main() {
-	initialize()
-	_ = "003020600900305001001806400008102900700000008006708200002609500800203009005010300"
-	grid2 := "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......"
+	// grid1 := "003020600900305001001806400008102900700000008006708200002609500800203009005010300"
+	// grid2 := "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......"
 
-	values, err := parseGrid(grid2)
-	if err != nil {
-		fmt.Println("error", err)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	n, _ := strconv.Atoi(scanner.Text())
+	for i := 0; i < n; i++ {
+		scanner.Scan()
+		if values, err := solve(scanner.Text()); err != nil {
+			fmt.Println("error", err)
+		} else {
+			display(values)
+			fmt.Println("")
+		}
 	}
-
-	display(values)
 }
