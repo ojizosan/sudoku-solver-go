@@ -135,14 +135,6 @@ func eliminate(values map[string]string, s string, d string) error {
 	return nil
 }
 
-func solve(grid string) (map[string]string, error) {
-	if values, err := parseGrid(grid); err != nil {
-		return nil, err
-	} else {
-		return search(values)
-	}
-}
-
 func search(values map[string]string) (map[string]string, error) {
 	square := ""
 	for s, _ := range values {
@@ -192,6 +184,14 @@ func display(values map[string]string) {
 		if i%27 == 26 && i%81 != 80 {
 			fmt.Printf("%s\n", line)
 		}
+	}
+}
+
+func solve(grid string) (map[string]string, error) {
+	if values, err := parseGrid(grid); err != nil {
+		return nil, err
+	} else {
+		return search(values)
 	}
 }
 
